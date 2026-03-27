@@ -11,6 +11,7 @@ from .schemas import (
     GmailClassifiedEmail,
     GmailConnectionStatus,
 )
+from .summarizer import EmailSummarizer, to_summary_schema
 
 
 app = FastAPI(
@@ -29,6 +30,7 @@ app.add_middleware(
 )
 
 classifier = EmailClassifier()
+summarizer = EmailSummarizer()
 
 
 @app.get("/health")
@@ -47,11 +49,16 @@ def classify_email(payload: EmailClassificationRequest) -> EmailClassificationRe
         sender=payload.sender,
         body=payload.body,
     )
+    summary = summarizer.summarize_email(subject=payload.subject, body=payload.body)
     return EmailClassificationResponse(
         top_label=result.top_label,
         scores=result.scores,
         model_name=result.model_name,
         inference_mode=result.inference_mode,
+        explanation=result.explanation,
+        priority=result.priority,
+        summary=to_summary_schema(summary),
+        language=result.language,
     )
 
 
@@ -81,6 +88,10 @@ def classify_gmail_messages(max_results: int = 25, query: str = "") -> GmailClas
             sender=message["sender"],
             body=message["body"],
         )
+        summary = summarizer.summarize_email(
+            subject=message["subject"],
+            body=message["body"],
+        )
         classified_messages.append(
             GmailClassifiedEmail(
                 message_id=message["message_id"],
@@ -95,6 +106,10 @@ def classify_gmail_messages(max_results: int = 25, query: str = "") -> GmailClas
                     scores=result.scores,
                     model_name=result.model_name,
                     inference_mode=result.inference_mode,
+                    explanation=result.explanation,
+                    priority=result.priority,
+                    summary=to_summary_schema(summary),
+                    language=result.language,
                 ),
             )
         )
@@ -104,6 +119,4 @@ def classify_gmail_messages(max_results: int = 25, query: str = "") -> GmailClas
         query=query,
         messages=classified_messages,
     )
-
-
 

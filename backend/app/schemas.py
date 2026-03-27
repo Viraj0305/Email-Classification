@@ -14,11 +14,48 @@ class LabelScore(BaseModel):
     score: float
 
 
+class ExplanationKeyword(BaseModel):
+    term: str
+    field: str
+    occurrences: int
+    weight: float
+
+
+class ClassificationExplanation(BaseModel):
+    summary: str
+    rationale: List[str]
+    matched_keywords: List[ExplanationKeyword]
+    explanation_method: str
+
+
+class PriorityAssessment(BaseModel):
+    level: str
+    score: float
+    color: str
+    reasons: List[str]
+
+
+class EmailSummary(BaseModel):
+    text: str
+    model_name: str
+    summary_method: str
+
+
+class LanguageInfo(BaseModel):
+    code: str
+    name: str
+    detection_method: str
+
+
 class EmailClassificationResponse(BaseModel):
     top_label: str
     scores: List[LabelScore]
     model_name: str
     inference_mode: str
+    explanation: ClassificationExplanation
+    priority: PriorityAssessment
+    summary: EmailSummary
+    language: LanguageInfo
 
 
 class GmailConnectionStatus(BaseModel):
@@ -34,6 +71,7 @@ class GmailClassifiedEmail(BaseModel):
     thread_id: str
     sender: str
     subject: str
+    body: str
     snippet: str
     received_at: str
     classification: EmailClassificationResponse
@@ -43,4 +81,3 @@ class GmailClassificationResponse(BaseModel):
     total_messages: int
     query: str
     messages: List[GmailClassifiedEmail]
-
