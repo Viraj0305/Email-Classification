@@ -1,20 +1,25 @@
 # SmartMail AI: Intelligent Email Assistant
 
-SmartMail AI is a full-stack AI-powered email assistant. It supports both single-email classification and Gmail inbox sync so you can classify recent mailbox messages into categories like Work, Promotions, Finance, Spam, and Phishing.
+SmartMail AI is a full-stack AI-powered email assistant. It supports Gmail inbox sync plus AI-powered email classification, priority ranking, explainability, summarization, and multilingual email understanding for English, Hindi, and Marathi.
 
 ## Stack
 
 - Frontend: React + Vite
 - Backend: FastAPI + Transformers + Gmail API
-- NLP approach: Zero-shot transformer classification with DistilBERT MNLI, plus a local fallback mode if model weights are not available yet
+- NLP approach: Zero-shot transformer classification with DistilBERT MNLI for English, multilingual keyword-based fallback for Hindi and Marathi, AI-style priority ranking, explainability, and email summarization with a local fallback mode when model weights are not available yet
 
 ## Features
 
 - Manual single-email classification
+- Multi-language support for English, Hindi, and Marathi
+- AI email summarization for long emails
+- Explainable AI with keyword-based reasons
+- Priority inbox ranking with `Urgent`, `Medium`, and `Low`
 - Gmail inbox connection with local OAuth
 - Inbox sync to load recent Gmail messages
-- Select one Gmail message and classify only that email
+- Select one Gmail message and inspect its full analysis
 - Confidence scores for every supported label
+- Language detection shown in both manual analysis and Gmail inbox cards
 
 Supported labels:
 
@@ -82,11 +87,12 @@ GMAIL_OAUTH_TOKEN_FILE=C:\path\to\.gmail-token.json
 
 How the local Gmail flow works:
 
-- Open the frontend and click `Connect Gmail and Load Inbox`
+- Open the frontend and click `Connect Gmail and Rank Inbox`
 - On the first sync, the backend opens a Google sign-in window in your browser
 - After consent, a local token file is stored in `backend/.gmail-token.json`
-- Select one inbox email from the loaded results
-- Click `Classify Selected Email` to run the main classifier on that message
+- Messages are ranked by AI priority and each one gets a short summary
+- Each email also shows its detected language
+- Select one inbox email to inspect its summary, priority, category, explanation, and language in detail
 
 ## Run the frontend
 
@@ -107,7 +113,8 @@ VITE_API_BASE_URL=http://127.0.0.1:8000
 ## Notes
 
 - The base backend install is intentionally lightweight except for the Gmail client libraries.
-- If the ML dependencies are missing or the model cannot be loaded, the backend automatically falls back to a deterministic keyword-based scorer so the demo remains usable during setup.
+- If the ML dependencies are missing or the model cannot be loaded, the backend automatically falls back to deterministic keyword scoring and extractive summarization so the demo remains usable during setup.
+- English emails can use transformer inference when the optional ML stack is available. Hindi and Marathi currently use a deterministic multilingual keyword fallback so the project remains lightweight and reliable during demos.
 - Gmail sync currently uses read-only access and classifies recent messages; it does not move, label, or delete emails.
 - Do not commit `backend/credentials.json`, `backend/.gmail-token.json`, or local `.env` files to Git.
 - In WSL, large package downloads can fail with `/tmp` I/O errors. If optional ML installation fails, retry with a writable temp directory:
