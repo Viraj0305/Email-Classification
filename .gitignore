@@ -1,0 +1,19 @@
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+node_modules/
+dist/
+.DS_Store
+
+# Local environment files
+.env
+.env.*
+frontend/.env
+frontend/.env.*
+backend/.env
+backend/.env.*
+
+# Gmail OAuth secrets and tokens
+backend/credentials.json
+backend/.gmail-token.json
